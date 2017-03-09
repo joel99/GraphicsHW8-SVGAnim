@@ -8,9 +8,6 @@ var stopBtn = document.getElementById("stopbtn");
 //var spd = document.getElementById("spd");
 var mousex, mousey;
 var rid;
-var imgLink = "https://upload.wikimedia.org/wikipedia/en/thumb/1/18/Dvd-video-logo.svg/1280px-Dvd-video-logo.svg.png";
-//var imgLink = "https://www.sitebuilderreport.com/assets/facebook-stock-up-08c6c9a855df26a3b13a34ac62bb75cc.jpg";
-
 
 svgImage.addEventListener("mousemove", function(e) {
     mousex = e.offsetX;
@@ -38,50 +35,78 @@ var makeCircle = function(x,y,r){
 
     c.setAttribute("clickCt", "0");
 
-    c.setAttribute("dx", "1");
+    if (2 * Math.random() > 1) c.setAttribute("dx", "1");
+    else c.setAttribute("dx", "-1");
+    if (2 * Math.random() > 1) c.setAttribute("dy", "1");
+    else c.setAttribute("dy", "-1");
 
-    c.setAttribute("dy", "1");
-    //change this to random +- 1
+    c.addEventListener("click", circClickOnce);
+    c.addEventListener("click", circClickTwice);
     
     return c;
 
 }
 
-var addCircle = function(e){
+var addCircle = function(x, y){
 
-    svgImage.appendChild(makeCircle(mousex.toString(), mousey.toString(), "20"));
+    svgImage.appendChild(makeCircle(x, y, "20"));
     
 }
 
-var moveAnim = function(){
+var addCircleClick = function(e){
+    addCircle(mousex.toString(), mousey.toString());
+}
 
-    clrSVG();
+var circClickOnce = function(e){
+    if (this.getAttribute("clickCt") == "0"){
+	this.setAttribute("fill", "red");
+	event.stopImmediatePropagation();
+	this.setAttribute("clickCt", "1");
+	console.log("clicked once");
+    }
+}
+
+var circClickTwice = function(e){
+    if (this.getAttribute("clickCt") == "1"){
+	console.log("removing");
+	svgImage.removeChild(this);
+	event.stopPropagation();
+	addCircle((Math.random() * width).toString(), (Math.random() * height).toString());
+    }
+}
+
+var moveAnim = function(){
+    
     window.cancelAnimationFrame(rid);
     var speed = 2;
     var xDir, yDir, x, y, r;
+    var i;
     console.log(svgImage.childNodes);
     var anim = function(){
 	
-	for (circle in svgImage.childNodes){
-	    console.log(circle);
-	    xDir = circle.getAttribute("dx");
-	    yDir = circle.getAttribute("dy");
-	    x += speed * xDir;
-	    y += speed * yDir;
-	    r = circle.getAttribute("y");
+	for (i = 0; i < svgImage.children.length; i++){
+
+	    var circle = svgImage.childNodes[i];
+
+	    xDir = parseInt(circle.getAttribute("dx"));
+	    yDir = parseInt(circle.getAttribute("dy"));
+	    x = parseInt(circle.getAttribute("cx")) + speed * xDir;
+	    y = parseInt(circle.getAttribute("cy")) + speed * yDir;
+	    r = parseInt(circle.getAttribute("r"));
 	    
-	    c.setAttribute("cx", x.toString());
-	    c.setAttribute("cy", y.toString());
-	    
-	    if (x - r <= 0 && x + r >= width){
+	    circle.setAttribute("cx", x.toString());
+	    circle.setAttribute("cy", y.toString());
+
+	    if (x - r <= 0 || x + r >= width){
 		xDir *= -1;
 	    }
-	    if (y - r >= 0 && y + r >= height){
+	    if (y - r <= 0 || y + r >= height){
 		yDir *= -1;
 	    }
 
-	    c.setAttribute("dx", xDir);
-	    c.setAttribute("dy", yDir);
+	    circle.setAttribute("dx", xDir.toString());
+	    circle.setAttribute("dy", yDir.toString());
+	    
 	    
 	}
 	rid = window.requestAnimationFrame(anim);
@@ -100,4 +125,4 @@ var stopAll = function(){
 stopBtn.addEventListener("click", stopAll);
 moveBtn.addEventListener("click", moveAnim);
 clrBtn.addEventListener("click", clrSVG);
-svgImage.addEventListener("click", addCircle);
+svgImage.addEventListener("click", addCircleClick);
