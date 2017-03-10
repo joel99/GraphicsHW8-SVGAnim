@@ -6,6 +6,7 @@ var clrBtn = document.getElementById("clearbtn");
 var moveBtn = document.getElementById("movebtn");
 var stopBtn = document.getElementById("stopbtn");
 //var spd = document.getElementById("spd");
+var ir = document.getElementById("ir");
 var mousex, mousey;
 var rid;
 
@@ -51,9 +52,10 @@ var makeCircle = function(x,y,r){
 }
 
 var addCircle = function(x, y){
-
-    svgImage.appendChild(makeCircle(x, y, "20"));
-    
+    if (ir.value)
+	svgImage.appendChild(makeCircle(x, y, ir.value));
+    else
+	svgImage.appendChild(makeCircle(x,y,"20"));
 }
 
 var addCircleClick = function(e){
@@ -70,7 +72,6 @@ var circClickOnce = function(e){
 
 var circClickTwice = function(e){
     if (this.getAttribute("clickCt") == "1"){
-	console.log("removing");
 	svgImage.removeChild(this);
 	event.stopPropagation();
 	addCircle((Math.random() * width).toString(), (Math.random() * height).toString());
@@ -119,8 +120,7 @@ var moveAnim = function(){
 		if (r < 1) svgImage.removeChild(circle);
 		else{
 		    circle.setAttribute("r", r.toString());
-		    var clone = makeCircle(x,y,r);
-		    console.log("circle made " + clone);
+		    var clone = makeCircle(x,y,r);		  
 		    
 		    clone.setAttribute("dx", (xDir * -1).toString());
 		    clone.setAttribute("dy", (yDir * -1).toString());
