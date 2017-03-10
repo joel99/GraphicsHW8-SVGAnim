@@ -30,6 +30,9 @@ var makeCircle = function(x,y,r){
     c.setAttribute("cy", y);
     
     c.setAttribute("r", r);
+
+    if (x < width / 2) c.setAttribute("side", "-1");
+    else c.setAttribute("side", "1");
     
     c.setAttribute("fill", "black");
 
@@ -62,7 +65,6 @@ var circClickOnce = function(e){
 	this.setAttribute("fill", "red");
 	event.stopImmediatePropagation();
 	this.setAttribute("clickCt", "1");
-	console.log("clicked once");
     }
 }
 
@@ -87,7 +89,7 @@ var moveAnim = function(){
 	for (i = 0; i < svgImage.children.length; i++){
 
 	    var circle = svgImage.childNodes[i];
-
+	    
 	    xDir = parseInt(circle.getAttribute("dx"));
 	    yDir = parseInt(circle.getAttribute("dy"));
 	    x = parseInt(circle.getAttribute("cx")) + speed * xDir;
@@ -106,6 +108,26 @@ var moveAnim = function(){
 
 	    circle.setAttribute("dx", xDir.toString());
 	    circle.setAttribute("dy", yDir.toString());
+
+	    var side = parseInt(circle.getAttribute("side"));
+	    if ((x < width / 2 - 2 && side == 1)
+		|| (x > width / 2 + 2 && side == -1)){
+		//console.log("sidled");
+		side *= -1;
+		circle.setAttribute("side", side.toString());
+		r = r/2;
+		if (r < 1) svgImage.removeChild(circle);
+		else{
+		    circle.setAttribute("r", r.toString());
+		    var clone = makeCircle(x,y,r);
+		    console.log("circle made " + clone);
+		    
+		    clone.setAttribute("dx", (xDir * -1).toString());
+		    clone.setAttribute("dy", (yDir * -1).toString());
+		    clone.setAttribute("side", (side * -1).toString());
+		    svgImage.appendChild(clone);
+		}
+	    }
 	    
 	    
 	}
